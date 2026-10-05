@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  title: array items allOf $ref bean validation
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    PetHolder:
+      type: object
+      properties:
+        pets:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Pet'
+        describedPets:
+          type: array
+          items:
+            description: a pet, wrapped in allOf to attach a description
+            allOf:
+              - $ref: '#/components/schemas/Pet'
+        petsByName:
+          type: object
+          additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/Pet'

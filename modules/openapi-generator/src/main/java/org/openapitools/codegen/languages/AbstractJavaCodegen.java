@@ -1248,6 +1248,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             return "";
         }
 
+        // allOf with a single sub schema (e.g. items: { allOf: [ $ref: Pet ] }, often used to attach
+        // a description or nullable to a $ref) resolves to the same type as the sub schema
+        if (ModelUtils.isAllOf(items) && items.getAllOf().size() == 1) {
+            items = items.getAllOf().get(0);
+        }
+
         if (items.get$ref() != null) {
             Map<String, Schema> schemas = this.openAPI.getComponents().getSchemas();
             String ref = ModelUtils.getSimpleRef(items.get$ref());

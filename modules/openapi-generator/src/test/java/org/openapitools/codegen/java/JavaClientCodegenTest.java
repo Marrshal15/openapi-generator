@@ -2734,6 +2734,26 @@ public class JavaClientCodegenTest {
     }
 
     @Test
+    public void testBeanValidationOnArrayItemsAllOfRef_issue25113() {
+        final Path output = newTempFolder();
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+                .setGeneratorName(JAVA_GENERATOR)
+                .setLibrary(JavaClientCodegen.RESTTEMPLATE)
+                .addAdditionalProperty(JavaClientCodegen.USE_BEANVALIDATION, true)
+                .setInputSpec("src/test/resources/3_0/java/array-items-allof-ref-bean-validation.yaml")
+                .setOutputDir(output.toString().replace("\\", "/"));
+
+        List<File> files = new DefaultGenerator().opts(configurator.toClientOptInput()).generate();
+        validateJavaSourceFiles(files);
+
+        // items: { allOf: [ $ref: Pet ] } must cascade validation like items: { $ref: Pet }
+        Path holder = output.resolve("src/main/java/org/openapitools/client/model/PetHolder.java");
+        assertFileContains(holder, "List<@Valid Pet> getPets()");
+        assertFileContains(holder, "List<@Valid Pet> getDescribedPets()");
+        assertFileContains(holder, "Map<String, @Valid Pet> getPetsByName()");
+    }
+
+    @Test
     public void testRestTemplateWithPerformBeanValidationEnabled() {
         final Path output = newTempFolder();
         final CodegenConfigurator configurator = new CodegenConfigurator()
